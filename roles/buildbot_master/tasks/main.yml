@@ -3,11 +3,19 @@
   git:
     repo: https://github.com/csnover/scummvm-docker.git
     dest: /srv/buildbot
+  notify:
+    - restart buildmaster
+  tags:
+    - configuration
 
 - name: Retrieve Buildbot secrets configuration
   copy:
     src: secrets.cfg
     dest: /srv/buildbot/secrets.cfg
+  notify:
+    - restart buildmaster
+  tags:
+    - configuration
 
 - name: Run Buildbot buildmaster
   docker_service:

@@ -1,29 +1,14 @@
 all:
   children:
-    # vm1:
-    #   hosts:
-    #     localhost:2223:
-    #   vars:
-    #     workers:
-    #       - amigaos
-    #       - dreamcast
-    #       - freemint
-    #       - gcw0
-    #       - haiku
-    #       - maemo
-    #       - nintendo
-    #       - psp
-    #       - ps3
-    #       - raspberrypi
-    #       - vita
+    vm1:
+      hosts:
+        localhost:2223:
+      vars:
+        workers:
+          - amigaos
     vm2:
       hosts:
         localhost:2222:
       vars:
         workers:
-          - android
           - debian-x86_64
-          - debian-x86
-          - ios
-          - macos
-          - windows

@@ -1,0 +1,8 @@
+{
+	"disable-legacy-registry": true,
+	"icc": false,
+	"live-restore": true,
+	"log-driver": "journald",
+	"userland-proxy": false,
+	"userns-remap": "default"
+}

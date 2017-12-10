@@ -1,0 +1,12 @@
+---
+- name: restart buildmaster
+  docker_service:
+    project_src: /srv/buildbot
+    files:
+      - docker-compose.yml
+      - docker-compose.prod.yml
+    services:
+      - web
+      - buildbot
+    state: present
+    restarted: true

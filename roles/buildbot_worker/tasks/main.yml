@@ -3,6 +3,8 @@
   git:
     repo: https://github.com/csnover/scummvm-docker.git
     dest: /srv/buildbot
+  tags:
+    - configuration
 
 - name: Run Buildbot workers
   docker_service:
@@ -13,3 +15,5 @@
     services:
       "{{ workers | map('regex_replace', '^', 'buildbot-') | list }}"
     state: present
+
+# TODO: Stop any old workers

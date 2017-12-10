@@ -4,3 +4,5 @@
     name: UTC
   notify:
     - restart cron
+  tags:
+    - configuration
