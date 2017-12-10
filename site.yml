@@ -5,12 +5,9 @@
 
 - hosts: vm1
   roles:
-    - { role: buildbot_worker,
-        workers: [amigaos, dreamcast, freemint, gcw0, haiku, maemo, nintendo,
-                  psp, ps3, raspberrypi, vita] }
+    - buildbot_worker
 
 - hosts: vm2
   roles:
     - buildbot_master
-    - { role: buildbot_worker,
-        workers: [android, debian-x86_64, debian-x86, ios, macos, windows] }
+    - buildbot_worker

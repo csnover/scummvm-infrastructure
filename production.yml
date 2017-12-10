@@ -1,0 +1,29 @@
+all:
+  children:
+    vm1:
+      hosts:
+        vm.scummvm.org:2222:
+      vars:
+        workers:
+          - amigaos
+          - dreamcast
+          - freemint
+          - gcw0
+          - haiku
+          - maemo
+          - nintendo
+          - psp
+          - ps3
+          - raspberrypi
+          - vita
+    vm2:
+      hosts:
+        vm2.scummvm.org:7022:
+      vars:
+        workers:
+          - android
+          - debian-x86_64
+          - debian-x86
+          - ios
+          - macos
+          - windows
