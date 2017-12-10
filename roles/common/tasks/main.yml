@@ -1,0 +1,6 @@
+---
+- name: Set the time zone
+  timezone:
+    name: UTC
+  notify:
+    - restart cron

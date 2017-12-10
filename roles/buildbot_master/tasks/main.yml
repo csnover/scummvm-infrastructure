@@ -1,0 +1,21 @@
+---
+- name: Retrieve Buildbot configuration
+  git:
+    repo: https://github.com/csnover/scummvm-docker.git
+    dest: /srv/buildbot
+
+- name: Retrieve Buildbot secrets configuration
+  copy:
+    src: secrets.cfg
+    dest: /srv/buildbot/secrets.cfg
+
+- name: Run Buildbot buildmaster
+  docker_service:
+    project_src: /srv/buildbot
+    files:
+      - docker-compose.yml
+      - docker-compose.prod.yml
+    services:
+      - web
+      - buildbot
+    state: present

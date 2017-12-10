@@ -1,0 +1,16 @@
+---
+- name: Retrieve Buildbot configuration
+  git:
+    repo: https://github.com/csnover/scummvm-docker.git
+    dest: /srv/buildbot
+
+- name: Run Buildbot workers
+  docker_service:
+    project_src: /srv/buildbot
+    files:
+      - docker-compose.yml
+      #- docker-compose.prod.yml
+    services:
+      - web
+      - buildbot
+    state: present

@@ -1,0 +1,5 @@
+[vm1]
+;localhost:2223
+
+[vm2]
+localhost:2222

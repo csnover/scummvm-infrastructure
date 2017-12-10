@@ -1,0 +1,37 @@
+---
+- name: Add Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/{{ ansible_lsb.id | lower }}/gpg
+
+- name: Add HTTPS transport for apt
+  apt:
+    name: apt-transport-https
+    state: installed
+
+- name: Add Docker repository
+  apt_repository:
+    repo: >
+      deb [arch=amd64] https://download.docker.com/linux/{{ ansible_lsb.id | lower }}
+      {{ ansible_lsb.codename }}
+      stable
+
+- name: Install apt packages for Docker
+  apt:
+    name: "{{ item }}"
+    state: installed
+    update_cache: yes
+  with_items:
+    - docker-ce=17.09.1~ce-0~debian
+    - python3
+    - python3-pip
+
+- name: Install docker-compose
+  pip:
+    executable: pip3
+    name: docker-compose==1.17.1
+    state: present
+
+- name: Run Docker service
+  service:
+    name: docker
+    state: started
