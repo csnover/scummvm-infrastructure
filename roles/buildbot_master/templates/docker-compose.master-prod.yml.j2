@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  web:
+    restart: always
+
+    # https://github.com/moby/moby/issues/35134 is happening when trying to
+    # restart the buildmaster on Debian 8
+    read_only: false
+
+  buildbot:
+    restart: always
+
+    # https://github.com/moby/moby/issues/35134 is happening when trying to
+    # restart the buildmaster on Debian 8
+    read_only: false
+
+    environment:
+      # BUILDBOT_IRC_CHANNEL: "#scummvm"
+      # BUILDBOT_IRC_USERNAME: ScummBot
+      BUILDBOT_REPO_URL: https://github.com/scummvm/scummvm.git
+      BUILDBOT_WEB_URL: https://buildbot.scummvm.org/
+      SCUMMVM_DEV_ENV: 0
+      SCUMMVM_SNAPSHOTS_URL: https://buildbot.scummvm.org/snapshots/

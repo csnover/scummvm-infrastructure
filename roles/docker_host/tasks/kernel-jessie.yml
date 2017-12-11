@@ -1,0 +1,35 @@
+---
+- name: Add backports repository
+  apt_repository:
+    repo: deb http://ftp.debian.org/debian {{ ansible_lsb.codename }}-backports main
+    state: present
+
+- name: Install up-to-date kernel
+  apt:
+    default_release: "{{ ansible_lsb.codename }}-backports"
+    name: linux-image-amd64
+    state: latest
+  register: kernel_updated
+
+- name: Reboot server
+  shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+  async: 1
+  poll: 0
+  ignore_errors: true
+  when: kernel_updated|changed
+
+- name: Wait for server to reboot
+  wait_for_connection:
+    delay: 10
+    timeout: 120
+  when: kernel_updated|changed
+
+- name: Remove Docker for kernel update
+  apt:
+    name: docker-ce=17.09.1~ce-0~debian
+    state: absent
+    purge: yes
+  when: kernel_updated|changed
+  tags:
+    - packages
+  ignore_errors: yes

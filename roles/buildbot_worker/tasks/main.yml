@@ -1,4 +1,45 @@
 ---
+- command: test -f /srv/buildbot/docker-compose.yml
+  register: buildbot_exists
+  failed_when: false
+  tags:
+    - services
+
+- name: Get list of available services
+  command: docker-compose config --services
+  args:
+    chdir: /srv/buildbot
+  register: docker_services
+  when: buildbot_exists.rc == 0
+  tags:
+    - services
+
+# TODO: Using `state: present stopped: true` causes all the images things to be
+# downloaded; using `state: absent` does not work with `services`
+# - name: Stop old Buildbot workers
+#   docker_service:
+#     project_src: /srv/buildbot
+#     files:
+#       - docker-compose.yml
+#     services:
+#       "{{ docker_services.stdout_lines | select('match', 'buildbot-') | list | difference(workers | map('regex_replace', '^', 'buildbot-') | list) }}"
+#     state: absent
+#   when: buildbot_exists.rc == 0
+#   tags:
+#     - services
+- name: Stop old Buildbot workers
+  command: >
+    docker-compose stop {{ docker_services.stdout_lines |
+                           select('match', 'buildbot-') |
+                           list |
+                           difference(workers | map('regex_replace', '^', 'buildbot-') | list) |
+                           join(' ') }}
+  args:
+    chdir: /srv/buildbot
+  when: buildbot_exists.rc == 0
+  tags:
+    - services
+
 - name: Retrieve Buildbot configuration
   git:
     repo: https://github.com/csnover/scummvm-docker.git
@@ -8,28 +49,23 @@
   tags:
     - configuration
 
-- name: Get list of available services
-  command: docker-compose config --services
-  args:
-    chdir: /srv/buildbot
-  register: docker_services
-
-- name: Stop old Buildbot workers
-  docker_service:
-    project_src: /srv/buildbot
-    files:
-      - docker-compose.yml
-      - docker-compose.prod.yml
-    services:
-      "{{ docker_services.stdout_lines | select('match', 'buildbot-') | list | difference(workers | map('regex_replace', '^', 'buildbot-') | list) }}"
-    state: absent
+- name: Install Buildbot worker settings
+  template:
+    src: docker-compose.worker-prod.yml.j2
+    dest: /srv/buildbot/docker-compose.worker-prod.yml
+  notify:
+    - restart workers
+  tags:
+    - configuration
 
 - name: Run Buildbot workers
   docker_service:
     project_src: /srv/buildbot
     files:
       - docker-compose.yml
-      - docker-compose.prod.yml
+      - docker-compose.worker-prod.yml
     services:
       "{{ workers | map('regex_replace', '^', 'buildbot-') | list }}"
     state: present
+  tags:
+    - services

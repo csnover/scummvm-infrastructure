@@ -5,10 +5,6 @@ all:
         vm.scummvm.org:2222:
       vars:
         ansible_python_interpreter: /usr/bin/python3
-
-        # Make sure that the WORKER_HOST is set appropriately in
-        # docker-compose.prod.yml for concurrency to work correctly. TODO: Fix
-        # https://github.com/ansible/ansible/issues/22946 so this is not needed.
         workers:
           - amigaos
           - dreamcast

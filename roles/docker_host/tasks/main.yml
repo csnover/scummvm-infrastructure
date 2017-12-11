@@ -1,7 +1,13 @@
 ---
+# At least kernel 3.19 is needed in order to fix
+# https://github.com/moby/moby/issues/21969
+- include_tasks: kernel-{{ ansible_lsb.codename }}.yml
+  failed_when: false
+
 - name: Add Docker GPG key
   apt_key:
     url: https://download.docker.com/linux/{{ ansible_lsb.id | lower }}/gpg
+    state: present
   tags:
     - packages
 
@@ -18,70 +24,43 @@
       deb [arch=amd64] https://download.docker.com/linux/{{ ansible_lsb.id | lower }}
       {{ ansible_lsb.codename }}
       stable
+    update_cache: yes
+    state: present
   tags:
     - packages
 
-- name: Install apt packages for Docker
+- name: Install Docker
   apt:
-    name: "{{ item }}"
-    state: installed
-    update_cache: yes
-  with_items:
-    - docker-ce=17.09.1~ce-0~debian
-    - python3
-    - python3-pip
-  when: >
-    ansible_python_interpreter is not undefined
-    and ansible_python_interpreter == "/usr/bin/python3"
+    name: docker-ce=17.09.1~ce-0~debian
+    state: present
   tags:
     - packages
 
-- name: Install apt packages for Docker (py2)
-  apt:
-    name: "{{ item }}"
-    state: installed
-    update_cache: yes
-  with_items:
-    - docker-ce=17.09.1~ce-0~debian
-    - python
-    - python-pip
+- import_tasks: py2.yml
   when: >
     ansible_python_interpreter is undefined
     or ansible_python_interpreter != "/usr/bin/python3"
-  tags:
-    - packages
 
-- name: Install docker-compose
-  pip:
-    executable: pip3
-    name: docker-compose==1.17.1
-    state: present
+- import_tasks: py3.yml
   when: >
     ansible_python_interpreter is not undefined
     and ansible_python_interpreter == "/usr/bin/python3"
-  tags:
-    - packages
-
-- name: Install docker-compose (py2)
-  pip:
-    name: docker-compose==1.17.1
-    state: present
-  when: >
-    ansible_python_interpreter is undefined
-    or ansible_python_interpreter != "/usr/bin/python3"
-  tags:
-    - packages
 
 - name: Install Daemon configuration
-  copy:
-    src: daemon.json
+  template:
+    src: daemon.json.j2
     dest: /etc/docker/daemon.json
   notify:
     - restart docker
   tags:
     - configuration
 
-- name: Run Docker service
+- meta: flush_handlers
+
+- name: Enable Docker
   service:
     name: docker
+    enabled: yes
     state: started
+  tags:
+    - services

@@ -1,0 +1,18 @@
+---
+- name: Install Python
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - python3
+    - python3-pip
+  tags:
+    - packages
+
+- name: Install docker-compose
+  pip:
+    executable: pip3
+    name: docker-compose==1.17.1
+    state: present
+  tags:
+    - packages

@@ -4,7 +4,7 @@
     project_src: /srv/buildbot
     files:
       - docker-compose.yml
-      - docker-compose.prod.yml
+      - docker-compose.master-prod.yml
     services:
       - web
       - buildbot

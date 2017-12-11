@@ -1,0 +1,11 @@
+version: "3"
+
+{% macro worker(name) %}
+buildbot-{{ name }}:
+  restart: always
+  environment:
+    WORKER_NAME: {{ ansible_hostname }}
+{% endmacro %}
+
+services:
+{% for worker_name in workers %}{{ worker(worker_name) | indent(2, True) }}{% endfor %}

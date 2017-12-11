@@ -17,13 +17,24 @@
   tags:
     - configuration
 
+- name: Install Buildbot buildmaster settings
+  template:
+    src: docker-compose.master-prod.yml.j2
+    dest: /srv/buildbot/docker-compose.master-prod.yml
+  notify:
+    - restart buildmaster
+  tags:
+    - configuration
+
 - name: Run Buildbot buildmaster
   docker_service:
     project_src: /srv/buildbot
     files:
       - docker-compose.yml
-      - docker-compose.prod.yml
+      - docker-compose.master-prod.yml
     services:
       - web
       - buildbot
     state: present
+  tags:
+    - services

@@ -1,0 +1,29 @@
+---
+- name: Install Python
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - python
+    - python-pip
+  tags:
+    - packages
+
+- name: Ensure latest pip & setuptools
+  pip:
+    executable: pip
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - pip
+    - setuptools
+  tags:
+    - packages
+
+- name: Install docker-compose
+  pip:
+    executable: pip
+    name: docker-compose==1.17.1
+    state: present
+  tags:
+    - packages
