@@ -30,6 +30,24 @@
     - docker-ce=17.09.1~ce-0~debian
     - python3
     - python3-pip
+  when: >
+    ansible_python_interpreter is not undefined
+    and ansible_python_interpreter == "/usr/bin/python3"
+  tags:
+    - packages
+
+- name: Install apt packages for Docker (py2)
+  apt:
+    name: "{{ item }}"
+    state: installed
+    update_cache: yes
+  with_items:
+    - docker-ce=17.09.1~ce-0~debian
+    - python
+    - python-pip
+  when: >
+    ansible_python_interpreter is undefined
+    or ansible_python_interpreter != "/usr/bin/python3"
   tags:
     - packages
 
@@ -38,6 +56,19 @@
     executable: pip3
     name: docker-compose==1.17.1
     state: present
+  when: >
+    ansible_python_interpreter is not undefined
+    and ansible_python_interpreter == "/usr/bin/python3"
+  tags:
+    - packages
+
+- name: Install docker-compose (py2)
+  pip:
+    name: docker-compose==1.17.1
+    state: present
+  when: >
+    ansible_python_interpreter is undefined
+    or ansible_python_interpreter != "/usr/bin/python3"
   tags:
     - packages
 
