@@ -3,8 +3,26 @@
   git:
     repo: https://github.com/csnover/scummvm-docker.git
     dest: /srv/buildbot
+  notify:
+    - restart workers
   tags:
     - configuration
+
+- name: Get list of available services
+  command: docker-compose config --services
+  args:
+    chdir: /srv/buildbot
+  register: docker_services
+
+- name: Stop old Buildbot workers
+  docker_service:
+    project_src: /srv/buildbot
+    files:
+      - docker-compose.yml
+      - docker-compose.prod.yml
+    services:
+      "{{ docker_services.stdout_lines | select('match', 'buildbot-') | list | difference(workers | map('regex_replace', '^', 'buildbot-') | list) }}"
+    state: absent
 
 - name: Run Buildbot workers
   docker_service:
@@ -15,5 +33,3 @@
     services:
       "{{ workers | map('regex_replace', '^', 'buildbot-') | list }}"
     state: present
-
-# TODO: Stop any old workers

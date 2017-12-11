@@ -1,0 +1,11 @@
+---
+- name: restart workers
+  docker_service:
+    project_src: /srv/buildbot
+    files:
+      - docker-compose.yml
+      - docker-compose.prod.yml
+    services:
+      "{{ workers | map('regex_replace', '^', 'buildbot-') | list }}"
+    state: present
+    restarted: true
