@@ -1,0 +1,34 @@
+---
+- name: Set SSH port
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^Port '
+    line: Port {{ sshd_port }}
+    state: present
+  when: sshd_port is not undefined
+  tags:
+    - configuration
+  notify:
+    - reload ssh
+
+- name: Disable password-interactive logins
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PasswordAuthentication '
+    line: 'PasswordAuthentication no'
+    state: present
+  tags:
+    - configuration
+  notify:
+    - reload ssh
+
+- name: Disable root login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PermitRootLogin '
+    line: 'PermitRootLogin no'
+    state: present
+  tags:
+    - configuration
+  notify:
+    - reload ssh

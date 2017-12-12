@@ -7,34 +7,12 @@
   tags:
     - configuration
 
-- name: Get minimum non-system UID
-  shell: "cat /etc/login.defs |grep ^UID_MIN|awk '{print $2}'"
-  register: min_uid
+- name: Install MOTD
+  template:
+    src: motd.j2
+    dest: /etc/motd
+  tags:
+    - configuration
 
-- name: Get current user list
-  shell: "getent passwd | awk -F: '$3 >= {{ min_uid.stdout }} {print $1}'"
-  register: old_usernames
-
-- name: Remove old user accounts
-  user:
-    name: "{{ item }}"
-    state: absent
-    remove: yes
-  when: item != "nobody" and item not in (users | map(attribute='name') | list)
-  with_items: "{{ old_usernames.stdout_lines }}"
-
-- name: Set user accounts
-  user:
-    name: "{{ item.name }}"
-    groups: "{{ item.groups | default(None) }}"
-    state: present
-  with_items: "{{ users }}"
-
-- name: Add authorized keys to user accounts
-  authorized_key:
-    user: "{{ item.0.name }}"
-    key: "{{ item.1 }}"
-  with_subelements:
-    - "{{ users }}"
-    - authorized
-    - skip_missing: yes
+- import_tasks: ssh.yml
+- import_tasks: users.yml

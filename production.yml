@@ -5,6 +5,7 @@ all:
         vm.scummvm.org:2222:
       vars:
         ansible_python_interpreter: /usr/bin/python3
+        sshd_port: 2222
         workers:
           - amigaos
           - dreamcast
@@ -21,6 +22,7 @@ all:
       hosts:
         vm2.scummvm.org:7022:
       vars:
+        sshd_port: 7022
         workers:
           - android
           - debian-x86_64

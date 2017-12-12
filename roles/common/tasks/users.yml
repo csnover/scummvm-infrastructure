@@ -1,0 +1,57 @@
+---
+- name: Get minimum non-system UID
+  shell: "cat /etc/login.defs |grep ^UID_MIN|awk '{print $2}'"
+  register: min_uid
+  tags:
+    - users
+
+- name: Get current user list
+  shell: "getent passwd | awk -F: '$3 >= {{ min_uid.stdout }} {print $1}'"
+  register: old_usernames
+  tags:
+    - users
+
+- name: Remove old user accounts
+  user:
+    name: "{{ item }}"
+    state: absent
+    remove: yes
+  when: item != "nobody" and item not in (users | map(attribute='name') | list)
+  with_items: "{{ old_usernames.stdout_lines }}"
+  tags:
+    - users
+
+- name: Set user accounts
+  user:
+    groups: "{{ item.groups | default(None) }}"
+    name: "{{ item.name }}"
+    password: ""
+    shell: /bin/bash
+    skeleton: /etc/skel
+    state: present
+    update_password: on_create
+  with_items: "{{ users }}"
+  tags:
+    - users
+
+- name: Expire password for new accounts
+  command: chage -d 0 {{ item.name }}
+  with_items: "{{ users }}"
+  when: item.name not in old_usernames.stdout_lines
+  tags:
+    - users
+
+- name: Add authorized keys to user accounts
+  authorized_key:
+    user: "{{ item.0.name }}"
+    key: "{{ item.1 }}"
+  with_subelements:
+    - "{{ users }}"
+    - authorized
+    # TODO: Maybe we do not want to allow accounts that do not have any
+    # authorized list, since no such accounts should really exist unless someone
+    # is using an account with keys not managed in Ansible (and such an account
+    # probably should not exist)
+    - skip_missing: yes
+  tags:
+    - users

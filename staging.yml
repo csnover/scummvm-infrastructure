@@ -13,3 +13,7 @@ all:
       vars:
         workers:
           - debian-x86_64
+  vars:
+    users:
+      - name: user
+        groups: sudo

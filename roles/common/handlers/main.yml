@@ -3,3 +3,8 @@
   service:
     name: cron
     state: restarted
+
+- name: reload ssh
+  service:
+    name: ssh
+    state: reloaded
