@@ -9,5 +9,6 @@
 
 - hosts: vm2
   roles:
+    - ancient_web
     - buildbot_master
     - buildbot_worker

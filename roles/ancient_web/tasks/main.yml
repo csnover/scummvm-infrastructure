@@ -1,0 +1,33 @@
+---
+- name: Install Apache 2
+  apt:
+    name: apache2
+    state: latest
+  tags:
+    - packages
+
+- name: Start Apache 2
+  service:
+    name: apache2
+    enabled: yes
+    state: started
+  tags:
+    - services
+
+- name: Active Apache mod_proxy
+  apache2_module:
+    name: proxy
+    state: present
+  notify:
+    - reload apache2
+  tags:
+    - configuration
+
+- name: Install Buildbot Apache configuration
+  template:
+    src: buildbot.scummvm.org.conf.j2
+    dest: /etc/apache2/sites-enabled/buildbot.scummvm.org.conf
+  notify:
+    - reload apache2
+  tags:
+    - configuration

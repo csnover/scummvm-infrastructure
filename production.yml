@@ -23,6 +23,7 @@ all:
         vm2.scummvm.org:7022:
       vars:
         sshd_port: 7022
+        internal_buildbot_port: 8010
         workers:
           - android
           - debian-x86_64
