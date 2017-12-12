@@ -1,0 +1,62 @@
+---
+- name: Install ufw
+  apt:
+    name: ufw
+    state: latest
+  tags:
+    - packages
+
+- name: Enable ufw
+  service:
+    name: ufw
+    enabled: yes
+    state: started
+  tags:
+    - services
+
+- name: Enable ufw logging
+  ufw:
+    logging: on
+  tags:
+    - configuration
+
+- name: Allow incoming services
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+    delete: no
+  with_items:
+    - "{{ sshd_port | default('ssh') }}"
+    - http
+    - https
+  tags:
+    - configuration
+
+- name: Limit SSH connection attempts
+  ufw:
+    rule: limit
+    port: ssh
+    proto: tcp
+    delete: no
+
+- name: Default allow outgoing connections
+  ufw:
+    policy: allow
+    direction: outgoing
+    delete: no
+  tags:
+    - configuration
+
+- name: Default deny other connections
+  ufw:
+    rule: deny
+    delete: no
+  tags:
+    - configuration
+
+- name: Enable firewall
+  ufw:
+    state: enabled
+  tags:
+    - configuration

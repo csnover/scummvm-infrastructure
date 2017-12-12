@@ -14,5 +14,6 @@
   tags:
     - configuration
 
+- import_tasks: firewall.yml
 - import_tasks: ssh.yml
 - import_tasks: users.yml
