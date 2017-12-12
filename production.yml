@@ -30,3 +30,21 @@ all:
           - ios
           - macos
           - windows
+  vars:
+    users:
+      - name: criezy
+        groups: sudo
+        authorized:
+          - https://github.com/criezy.keys
+      - name: sev
+        groups: sudo
+        authorized:
+          - https://github.com/sev-.keys
+      - name: snover
+        groups: sudo
+        authorized:
+          - https://github.com/csnover.keys
+      - name: wjp
+        groups: sudo
+        authorized:
+          - https://github.com/wjp.keys
