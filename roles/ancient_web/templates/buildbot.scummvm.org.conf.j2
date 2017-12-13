@@ -1,13 +1,12 @@
-<VirtualHost buildbot.scummvm.org:80>
+<VirtualHost *:80>
 	ServerName buildbot.scummvm.org
 
 	ErrorLog ${APACHE_LOG_DIR}/buildbot_error.log
 	CustomLog ${APACHE_LOG_DIR}/buildbot_access.log combined
 
-	<Location />
-		Satisfy any
-		Allow from all
-		ProxyPass http://localhost:{{ internal_buildbot_port }}/
-		ProxyPassReverse http://localhost:{{ internal_buildbot_port }}/
-	</Location>
+	ProxyPass /ws ws://localhost:{{ internal_buildbot_port }}/ws
+	ProxyPassReverse /ws ws://localhost:{{ internal_buildbot_port }}/ws
+	ProxyPass / http://localhost:{{ internal_buildbot_port }}/
+	ProxyPassReverse / http://localhost:{{ internal_buildbot_port }}/
+	AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/xml application/javascript application/x-javascript text/javascript application/json text/x-json
 </VirtualHost>

@@ -14,10 +14,15 @@
   tags:
     - services
 
-- name: Active Apache mod_proxy
+- name: Activate Apache modules
   apache2_module:
-    name: proxy
+    name: "{{ item }}"
     state: present
+  with_items:
+    - deflate
+    - proxy
+    - proxy_http
+    - proxy_wstunnel
   notify:
     - reload apache2
   tags:
