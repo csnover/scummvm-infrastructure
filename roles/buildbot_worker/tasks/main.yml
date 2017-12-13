@@ -1,5 +1,6 @@
 ---
-- command: test -f /srv/buildbot/docker-compose.yml
+- name: Check if Buildbot configuration already exists
+  command: test -f /srv/buildbot/docker-compose.yml
   register: buildbot_exists
   failed_when: false
   tags:
