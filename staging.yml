@@ -12,6 +12,9 @@ all:
         localhost:2222:
       vars:
         internal_buildbot_port: 8010
+        ssl_domains:
+          - buildbot.scummvm.org
+        ssl_selfsigned: yes
         workers:
           - debian-x86_64
   vars:

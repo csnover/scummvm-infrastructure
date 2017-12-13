@@ -20,23 +20,22 @@
   tags:
     - configuration
 
-- name: Allow incoming services
+- name: Allow incoming web access
   ufw:
     rule: allow
     port: "{{ item }}"
     proto: tcp
     delete: no
   with_items:
-    - "{{ sshd_port | default('ssh') }}"
     - http
     - https
   tags:
     - configuration
 
-- name: Limit SSH connection attempts
+- name: Allow rate-limited incoming SSH access
   ufw:
     rule: limit
-    port: ssh
+    port: "{{ sshd_port | default('ssh') }}"
     proto: tcp
     delete: no
 

@@ -22,8 +22,10 @@ all:
       hosts:
         vm2.scummvm.org:7022:
       vars:
-        sshd_port: 7022
         internal_buildbot_port: 8010
+        sshd_port: 7022
+        ssl_domains:
+          - buildbot.scummvm.org
         workers:
           - android
           - debian-x86_64
