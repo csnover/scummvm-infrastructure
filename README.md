@@ -1,6 +1,6 @@
 # ScummVM Infrastructure
 
-This infrastructure uses [Ansible](https://www.ansible.com/).
+This infrastructure uses [Ansible](https://www.ansible.com/) ([docs](http://docs.ansible.com/ansible/latest/index.html)).
 
 ## Requirements
 
