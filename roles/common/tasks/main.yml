@@ -7,6 +7,22 @@
   tags:
     - configuration
 
+- name: Disable ntpd
+  service:
+    name: ntpd
+    enabled: no
+    state: stopped
+  tags:
+    - services
+
+- name: Enable timesyncd
+  service:
+    name: systemd-timesyncd
+    enabled: yes
+    state: started
+  tags:
+    - services
+
 - name: Install MOTD
   template:
     src: motd.j2
