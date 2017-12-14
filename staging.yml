@@ -2,14 +2,15 @@ all:
   children:
     vm1:
       hosts:
-        localhost:2223:
+        192.168.10.2:
       vars:
         ansible_python_interpreter: /usr/bin/python3
+        buildbot_master_host: 192.168.10.3
         workers:
           - amigaos
     vm2:
       hosts:
-        localhost:2222:
+        192.168.10.3:
       vars:
         internal_buildbot_port: 8010
         ssl_domains:

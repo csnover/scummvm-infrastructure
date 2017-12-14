@@ -8,6 +8,7 @@
   when: sshd_port is not undefined
   tags:
     - configuration
+    - ssh
   notify:
     - reload ssh
 
@@ -19,6 +20,7 @@
     state: present
   tags:
     - configuration
+    - ssh
   notify:
     - reload ssh
 
@@ -30,5 +32,6 @@
     state: present
   tags:
     - configuration
+    - ssh
   notify:
     - reload ssh

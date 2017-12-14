@@ -6,14 +6,15 @@
     - restart cron
   tags:
     - configuration
+    - time
 
-- name: Disable ntpd
-  service:
-    name: ntpd
-    enabled: no
-    state: stopped
+- name: Uninstall ntpd
+  apt:
+    name: ntp
+    state: absent
   tags:
-    - services
+    - packages
+    - time
 
 - name: Enable timesyncd
   service:
@@ -22,6 +23,7 @@
     state: started
   tags:
     - services
+    - time
 
 - name: Install MOTD
   template:
@@ -29,6 +31,7 @@
     dest: /etc/motd
   tags:
     - configuration
+    - motd
 
 - import_tasks: firewall.yml
 - import_tasks: ssh.yml

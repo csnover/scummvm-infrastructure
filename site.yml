@@ -5,6 +5,7 @@
 
 - hosts: vm1
   roles:
+    - buildbot_forwarder
     - buildbot_worker
 
 - hosts: vm2

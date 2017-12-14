@@ -5,6 +5,7 @@ all:
         vm.scummvm.org:2222:
       vars:
         ansible_python_interpreter: /usr/bin/python3
+        buildbot_master_host: vm2.scummvm.org
         sshd_port: 2222
         workers:
           - amigaos

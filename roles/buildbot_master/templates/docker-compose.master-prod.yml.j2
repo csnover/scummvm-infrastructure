@@ -24,3 +24,23 @@ services:
       BUILDBOT_WEB_URL: https://buildbot.scummvm.org/
       SCUMMVM_DEV_ENV: 0
       SCUMMVM_SNAPSHOTS_URL: https://buildbot.scummvm.org/snapshots/
+
+    networks:
+      - tunnel
+
+  tunnel:
+    build:
+      context: .
+      dockerfile: Dockerfile-receiver
+    tmpfs:
+      - /run/sshd:mode=700
+    networks:
+      - tunnel
+    ports:
+      - "{{ buildbot_worker_port | default('28459') }}:{{ buildbot_worker_port | default('28459') }}"
+    restart: always
+    security_opt:
+      - no-new-privileges
+
+networks:
+  tunnel:

@@ -1,11 +1,13 @@
 ---
 - name: Retrieve Buildbot configuration
   git:
-    repo: https://github.com/csnover/scummvm-docker.git
+    repo: https://github.com/csnover/scummvm-buildbot.git
     dest: /srv/buildbot
   notify:
     - restart buildmaster
   tags:
+    - buildbot_master
+    - buildbot_tunnel
     - configuration
 
 - name: Retrieve Buildbot secrets configuration
@@ -15,6 +17,7 @@
   notify:
     - restart buildmaster
   tags:
+    - buildbot_master
     - configuration
 
 - name: Install Buildbot buildmaster settings
@@ -24,7 +27,53 @@
   notify:
     - restart buildmaster
   tags:
+    - buildbot_master
+    - buildbot_tunnel
     - configuration
+
+- name: Install Buildbot tunnel authorized_keys
+  copy:
+    src: receiver_authorized_keys
+    dest: /srv/buildbot/receiver_authorized_keys
+    mode: 0600
+  tags:
+    - buildbot_master
+    - buildbot_tunnel
+    - configuration
+
+- name: Install Buildbot tunnel host key
+  copy:
+    src: receiver_host_id_ed25519
+    dest: /srv/buildbot/receiver_host_id_ed25519
+    mode: 0600
+  tags:
+    - buildbot_master
+    - buildbot_tunnel
+    - configuration
+
+- name: Install Buildbot tunnel Dockerfile
+  template:
+    src: Dockerfile-receiver.j2
+    dest: /srv/buildbot/Dockerfile-receiver
+  tags:
+    - buildbot_master
+    - buildbot_tunnel
+    - configuration
+
+- name: Allow incoming tunnel access
+  ufw:
+    rule: allow
+    insert: 1
+    port: "{{ buildbot_worker_port | default('28459') }}"
+    from_ip: "{{ item }}"
+    proto: tcp
+    delete: no
+  with_items: "{{ groups.all }}"
+  when: item != inventory_hostname
+  tags:
+    - buildbot_tunnel
+    - configuration
+    - firewall
 
 - name: Run Buildbot buildmaster
   docker_service:
@@ -35,6 +84,9 @@
     services:
       - web
       - buildbot
+      - tunnel
     state: present
   tags:
+    - buildbot_master
+    - buildbot_tunnel
     - services

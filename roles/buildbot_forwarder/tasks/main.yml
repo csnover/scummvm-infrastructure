@@ -1,0 +1,87 @@
+- name: Install Buildbot forwarding tunnel settings
+  template:
+    src: docker-compose.forwarder.yml.j2
+    dest: /srv/buildbot/docker-compose.forwarder.yml
+  tags:
+    - buildbot_tunnel
+    - configuration
+
+# This is needed until docker-compose gains the ability to replace lists of
+# things on services, instead of appending to them when a service is overridden
+- name: Shunt away original buildmaster service
+  lineinfile:
+    backrefs: yes
+    path: /srv/buildbot/docker-compose.yml
+    regexp: '^(\s+)buildbot:'
+    line: '\1disabled_buildbot:'
+  tags:
+    - buildbot_tunnel
+    - configuration
+
+# Same as above, plus even though we do not use the web service on tunneled
+# workers, docker-compose will still validate the configuration and fail it on
+# missing dependencies, so get rid of the dependency
+- name: Eliminate web dependency on buildmaster service
+  lineinfile:
+    path: /srv/buildbot/docker-compose.yml
+    regexp: '^\s+depends_on:'
+    line: ''
+  tags:
+    - buildbot_tunnel
+    - configuration
+
+- name: Eliminate web dependency on buildmaster service
+  lineinfile:
+    path: /srv/buildbot/docker-compose.yml
+    regexp: '^\s+- buildbot'
+    line: ''
+  tags:
+    - buildbot_tunnel
+    - configuration
+
+- name: Ensure Buildbot forwarding tunnel directory exists
+  file:
+    path: /srv/buildbot/forwarder
+    state: directory
+  tags:
+    - buildbot_tunnel
+    - configuration
+
+- name: Install Buildbot forwarding tunnel SSH key
+  copy:
+    src: id_ed25519
+    dest: /srv/buildbot/forwarder/id_ed25519
+    mode: 0600
+  tags:
+    - buildbot_tunnel
+    - configuration
+
+- name: Install Buildbot forwarding tunnel known hosts
+  template:
+    src: known_hosts.j2
+    dest: /srv/buildbot/forwarder/known_hosts
+    mode: 0600
+  tags:
+    - buildbot_tunnel
+    - configuration
+
+- name: Install Buildbot forwarding tunnel Dockerfile
+  template:
+    src: Dockerfile.j2
+    dest: /srv/buildbot/forwarder/Dockerfile
+  tags:
+    - buildbot_tunnel
+    - configuration
+
+- name: Run Buildbot forwarding tunnel
+  docker_service:
+    project_src: /srv/buildbot
+    files:
+      - docker-compose.yml
+      - docker-compose.forwarder.yml
+    services:
+      - buildbot
+    state: present
+  tags:
+    - buildbot_tunnel
+    - services

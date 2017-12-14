@@ -1,0 +1,7 @@
+version: "3"
+services:
+  buildbot:
+    build: ./forwarder
+    networks:
+      - builders
+    restart: always

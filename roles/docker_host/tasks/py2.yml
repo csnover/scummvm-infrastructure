@@ -7,6 +7,7 @@
     - python
     - python-pip
   tags:
+    - docker_host
     - packages
 
 - name: Ensure latest pip & setuptools
@@ -18,6 +19,7 @@
     - pip
     - setuptools
   tags:
+    - docker_host
     - packages
 
 - name: Install docker-compose
@@ -26,4 +28,5 @@
     name: docker-compose==1.17.1
     state: present
   tags:
+    - docker_host
     - packages

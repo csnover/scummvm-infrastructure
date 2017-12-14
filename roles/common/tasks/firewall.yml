@@ -4,6 +4,7 @@
     name: ufw
     state: latest
   tags:
+    - firewall
     - packages
 
 - name: Enable ufw
@@ -12,6 +13,7 @@
     enabled: yes
     state: started
   tags:
+    - firewall
     - services
 
 - name: Enable ufw logging
@@ -19,10 +21,12 @@
     logging: on
   tags:
     - configuration
+    - firewall
 
 - name: Allow incoming web access
   ufw:
     rule: allow
+    insert: 1
     port: "{{ item }}"
     proto: tcp
     delete: no
@@ -31,13 +35,18 @@
     - https
   tags:
     - configuration
+    - firewall
 
 - name: Allow rate-limited incoming SSH access
   ufw:
     rule: limit
+    insert: 1
     port: "{{ sshd_port | default('ssh') }}"
     proto: tcp
     delete: no
+  tags:
+    - configuration
+    - firewall
 
 - name: Default allow outgoing connections
   ufw:
@@ -46,6 +55,7 @@
     delete: no
   tags:
     - configuration
+    - firewall
 
 - name: Default deny other connections
   ufw:
@@ -53,9 +63,11 @@
     delete: no
   tags:
     - configuration
+    - firewall
 
 - name: Enable firewall
   ufw:
     state: enabled
   tags:
     - configuration
+    - firewall

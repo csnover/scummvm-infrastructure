@@ -3,12 +3,14 @@
   shell: "cat /etc/login.defs |grep ^UID_MIN|awk '{print $2}'"
   register: min_uid
   tags:
+    - configuration
     - users
 
 - name: Get current user list
   shell: "getent passwd | awk -F: '$3 >= {{ min_uid.stdout }} {print $1}'"
   register: old_usernames
   tags:
+    - configuration
     - users
 
 - name: Remove old user accounts
@@ -19,6 +21,7 @@
   when: item != "nobody" and item not in (users | map(attribute='name') | list)
   with_items: "{{ old_usernames.stdout_lines }}"
   tags:
+    - configuration
     - users
 
 - name: Set user accounts
@@ -32,6 +35,7 @@
     update_password: on_create
   with_items: "{{ users }}"
   tags:
+    - configuration
     - users
 
 - name: Expire password for new accounts
@@ -39,6 +43,7 @@
   with_items: "{{ users }}"
   when: item.name not in old_usernames.stdout_lines
   tags:
+    - configuration
     - users
 
 - name: Add authorized keys to user accounts
@@ -54,4 +59,5 @@
     # probably should not exist)
     - skip_missing: yes
   tags:
+    - configuration
     - users

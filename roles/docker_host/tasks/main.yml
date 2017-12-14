@@ -1,14 +1,18 @@
 ---
 # At least kernel 3.19 is needed in order to fix
 # https://github.com/moby/moby/issues/21969
-- include_tasks: kernel-{{ ansible_lsb.codename }}.yml
-  failed_when: false
+- include_tasks: "{{ item }}"
+  with_first_found:
+    - files:
+        - kernel-{{ ansible_lsb.codename }}.yml
+      skip: true
 
 - name: Add Docker GPG key
   apt_key:
     url: https://download.docker.com/linux/{{ ansible_lsb.id | lower }}/gpg
     state: present
   tags:
+    - docker_host
     - packages
 
 - name: Add HTTPS transport for apt
@@ -16,6 +20,7 @@
     name: apt-transport-https
     state: installed
   tags:
+    - docker_host
     - packages
 
 - name: Add Docker repository
@@ -27,6 +32,7 @@
     update_cache: yes
     state: present
   tags:
+    - docker_host
     - packages
 
 - name: Install Docker
@@ -34,6 +40,7 @@
     name: docker-ce=17.09.1~ce-0~debian
     state: present
   tags:
+    - docker_host
     - packages
 
 - import_tasks: py2.yml
@@ -54,6 +61,7 @@
     - restart docker
   tags:
     - configuration
+    - docker_host
 
 - meta: flush_handlers
 
@@ -63,4 +71,5 @@
     enabled: yes
     state: started
   tags:
+    - docker_host
     - services

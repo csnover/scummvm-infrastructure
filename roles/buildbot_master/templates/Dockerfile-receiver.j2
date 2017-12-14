@@ -1,0 +1,25 @@
+FROM debian:9
+RUN apt-get update && \
+	DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+		openssh-server && \
+	rm -rf /var/lib/apt/lists/* && \
+	useradd -s /bin/false -d /tunnel -U -M tunnel && \
+	mkdir -m 700 -p /tunnel/.ssh && \
+	chown -R tunnel:tunnel /tunnel
+
+# OpenSSH is too particular about file ownership and permissions to mount these
+# files at container runtime
+COPY receiver_authorized_keys /tunnel/.ssh/authorized_keys
+COPY receiver_host_id_ed25519 /etc/ssh/id_ed25519
+
+RUN chown tunnel:tunnel /tunnel/.ssh/*
+
+# It is apparently impossible to run the OpenSSH daemon as a non-root user as of
+# OpenSSH 7.5, which removes UsePrivilegeSeparation
+CMD /usr/sbin/sshd -D -e -p {{ buildbot_worker_port | default('28459') }} \
+	-o PermitOpen=buildbot:{{ buildbot_worker_port | default('28459') }} \
+	-o AllowUsers=tunnel \
+	-o AllowAgentForwarding=no \
+	-o MaxAuthTries=1 \
+	-o HostKey=/etc/ssh/id_ed25519 \
+	-o PasswordAuthentication=no

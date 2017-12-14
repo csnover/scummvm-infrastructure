@@ -3,6 +3,9 @@
   apt_repository:
     repo: deb http://ftp.debian.org/debian {{ ansible_lsb.codename }}-backports main
     state: present
+  tags:
+    - docker_host
+    - packages
 
 - name: Install up-to-date kernel
   apt:
@@ -10,6 +13,9 @@
     name: linux-image-amd64
     state: latest
   register: kernel_updated
+  tags:
+    - docker_host
+    - packages
 
 - name: Reboot server
   shell: sleep 2 && shutdown -r now "Ansible updates triggered"
@@ -17,12 +23,18 @@
   poll: 0
   ignore_errors: true
   when: kernel_updated|changed
+  tags:
+    - docker_host
+    - packages
 
 - name: Wait for server to reboot
   wait_for_connection:
     delay: 10
     timeout: 120
   when: kernel_updated|changed
+  tags:
+    - docker_host
+    - packages
 
 - name: Remove Docker for kernel update
   apt:
@@ -30,6 +42,7 @@
     state: absent
     purge: yes
   when: kernel_updated|changed
-  tags:
-    - packages
   ignore_errors: yes
+  tags:
+    - docker_host
+    - packages

@@ -1,0 +1,20 @@
+FROM debian:9
+RUN apt-get update && \
+	DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+		openssh-client && \
+	rm -rf /var/lib/apt/lists/* && \
+	useradd -s /bin/false -d /tunnel -U -M tunnel && \
+	mkdir -m 700 -p /tunnel/.ssh && \
+	chown -R tunnel:tunnel /tunnel
+
+# OpenSSH is too particular about file ownership and permissions to mount these
+# files at container runtime
+COPY known_hosts /tunnel/.ssh/known_hosts
+COPY id_ed25519 /tunnel/.ssh/id_ed25519
+
+RUN chown tunnel:tunnel /tunnel/.ssh/*
+
+USER tunnel
+CMD /usr/bin/ssh -N \
+	-L *:{{ buildbot_worker_port | default('28459') }}:buildbot:{{ buildbot_worker_port | default('28459') }} \
+	-p {{ buildbot_worker_port | default('28459') }} {{ buildbot_master_host }}
