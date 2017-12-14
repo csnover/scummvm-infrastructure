@@ -16,9 +16,16 @@
 	SSLCipherSuite HIGH:!ADH:!aNULL:!MD5:!3DES
 
 	Header always set Strict-Transport-Security "max-age=3600"
+	AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/xml application/javascript application/x-javascript text/javascript application/json text/x-json
+
+	<Directory /var/www/html/.well-known/acme-challenge/>
+		Options -Indexes
+	</Directory>
+
+	ProxyPass /.well-known/acme-challenge/ !
+	Alias /.well-known/acme-challenge/ /var/www/html/.well-known/acme-challenge/
 	ProxyPass /ws ws://localhost:{{ internal_buildbot_port }}/ws
 	ProxyPassReverse /ws ws://localhost:{{ internal_buildbot_port }}/ws
 	ProxyPass / http://localhost:{{ internal_buildbot_port }}/
 	ProxyPassReverse / http://localhost:{{ internal_buildbot_port }}/
-	AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/xml application/javascript application/x-javascript text/javascript application/json text/x-json
 </VirtualHost>
