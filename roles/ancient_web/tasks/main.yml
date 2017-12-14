@@ -4,6 +4,8 @@
     name: apache2
     state: latest
   tags:
+    - ancient_web
+    - apache2
     - packages
 
 - name: Start Apache 2
@@ -12,6 +14,8 @@
     enabled: yes
     state: started
   tags:
+    - ancient_web
+    - apache2
     - services
 
 - name: Activate Apache modules
@@ -28,6 +32,8 @@
   notify:
     - reload apache2
   tags:
+    - ancient_web
+    - apache2
     - configuration
 
 - import_tasks: ssl.yml
@@ -39,4 +45,6 @@
   notify:
     - reload apache2
   tags:
+    - ancient_web
+    - apache2
     - configuration

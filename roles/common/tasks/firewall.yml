@@ -23,6 +23,23 @@
     - configuration
     - firewall
 
+- name: Default allow outgoing connections
+  ufw:
+    policy: allow
+    direction: outgoing
+    delete: no
+  tags:
+    - configuration
+    - firewall
+
+- name: Default deny other connections
+  ufw:
+    rule: deny
+    delete: no
+  tags:
+    - configuration
+    - firewall
+
 - name: Allow incoming web access
   ufw:
     rule: allow
@@ -43,23 +60,6 @@
     insert: 1
     port: "{{ sshd_port | default('ssh') }}"
     proto: tcp
-    delete: no
-  tags:
-    - configuration
-    - firewall
-
-- name: Default allow outgoing connections
-  ufw:
-    policy: allow
-    direction: outgoing
-    delete: no
-  tags:
-    - configuration
-    - firewall
-
-- name: Default deny other connections
-  ufw:
-    rule: deny
     delete: no
   tags:
     - configuration

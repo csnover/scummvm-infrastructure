@@ -1,4 +1,3 @@
 ---
 dependencies:
-  - docker_host
   - buildbot_worker

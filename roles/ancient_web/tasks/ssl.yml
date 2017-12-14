@@ -8,21 +8,27 @@
     name: pyOpenSSL
     state: latest
   tags:
+    - ancient_web
     - packages
+    - ssl
 
 - name: Create directory for SSL certificates
   file:
     path: /etc/letsencrypt/live/scummvm.org
     state: directory
   tags:
+    - ancient_web
     - configuration
+    - ssl
 
 - name: Generate SSL private key
   openssl_privatekey:
     path: /etc/letsencrypt/live/scummvm.org/privkey.pem
     state: present
   tags:
+    - ancient_web
     - configuration
+    - ssl
 
 - name: Generate SSL CSR
   openssl_csr:
@@ -31,7 +37,9 @@
     subject_alt_name: "DNS:{{ ssl_domains | join(',DNS:') }}"
     state: present
   tags:
+    - ancient_web
     - configuration
+    - ssl
 
 - name: Generate self-signed SSL certificate
   openssl_certificate:
@@ -42,4 +50,6 @@
     state: present
   when: ssl_selfsigned is not undefined and ssl_selfsigned
   tags:
+    - ancient_web
     - configuration
+    - ssl

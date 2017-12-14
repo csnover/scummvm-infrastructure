@@ -49,6 +49,7 @@
   git:
     repo: https://github.com/csnover/scummvm-buildbot.git
     dest: /srv/buildbot
+    force: yes
   notify:
     - restart workers
   tags:
