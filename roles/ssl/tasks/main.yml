@@ -89,6 +89,14 @@
     - configuration
     - ssl
 
+- name: Ensure Let’s Encrypt challenge directory exists
+  file:
+    path: /var/www/html/.well-known/acme-challenge
+    state: directory
+  tags:
+    - configuration
+    - ssl
+
 - name: Generate SSL private key
   openssl_privatekey:
     path: /etc/letsencrypt/scummvm.org.key
