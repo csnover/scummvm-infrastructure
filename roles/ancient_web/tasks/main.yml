@@ -48,5 +48,9 @@
     - ssl
 
 - include_tasks: config.yml
+  tags:
+    - ancient_web
+    - apache2
+    - configuration
   with_items:
     - buildbot.scummvm.org
