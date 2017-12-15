@@ -1,0 +1,136 @@
+---
+- name: Install pyOpenSSL for CSR generation
+  pip:
+    executable: >-
+      {{ "pip3" if
+           ansible_python_interpreter is not undefined
+           and ansible_python_interpreter == "/usr/bin/python3"
+         else "pip" }}
+    name: pyOpenSSL
+    state: latest
+  tags:
+    - packages
+    - ssl
+
+- name: Create Let’s Encrypt user
+  user:
+    name: letsencrypt
+    home: /etc/letsencrypt
+    shell: /bin/false
+    state: present
+    system: yes
+  tags:
+    - users
+    - ssl
+
+- name: Ensure Let’s Encrypt home directory ownership
+  file:
+    path: /etc/letsencrypt
+    group: letsencrypt
+    owner: letsencrypt
+    state: directory
+  tags:
+    - users
+    - ssl
+
+- name: Set valid sudo commands for Let’s Encrypt
+  template:
+    src: sudoers.j2
+    dest: /etc/sudoers.d/letsencrypt
+    validate: visudo -cf %s
+  tags:
+    - configuration
+    - ssl
+
+- name: Install acme_tiny
+  copy:
+    src: acme_tiny.sh
+    dest: /etc/letsencrypt/acme_tiny.sh
+    group: letsencrypt
+    mode: 0700
+    owner: letsencrypt
+  tags:
+    - packages
+    - ssl
+
+- name: Install certificate renewal script
+  template:
+    src: renew_cert.sh.j2
+    dest: /etc/letsencrypt/renew_cert.sh
+    group: letsencrypt
+    mode: 0700
+    owner: letsencrypt
+  tags:
+    - configuration
+    - ssl
+
+- name: Install Let’s Encrypt cron task
+  cron:
+    name: letsencrypt
+    job: /etc/letsencrypt/renew_cert.sh scummvm.org 2>&1 | /usr/bin/logger -t acme_tiny
+    minute: "{{ 59 | random(seed=inventory_hostname) }}"
+    hour: 0
+    day: 8
+    month: "*/2"
+    user: letsencrypt
+    state: "{{ 'absent' if ssl_selfsigned is defined and ssl_selfsigned or 'present' }}"
+  tags:
+    - configuration
+    - ssl
+
+- name: Install Let’s Encrypt account key
+  copy:
+    src: account.key
+    dest: /etc/letsencrypt/account.key
+    group: letsencrypt
+    mode: 0600
+    owner: letsencrypt
+  tags:
+    - configuration
+    - ssl
+
+- name: Generate SSL private key
+  openssl_privatekey:
+    path: /etc/letsencrypt/scummvm.org.key
+    state: present
+  become: yes
+  become_user: letsencrypt
+  tags:
+    - configuration
+    - ssl
+
+- name: Generate SSL CSR
+  openssl_csr:
+    path: /etc/letsencrypt/scummvm.org.csr
+    privatekey_path: /etc/letsencrypt/scummvm.org.key
+    subject_alt_name: "DNS:{{ ssl_domains | join(',DNS:') }}"
+    state: present
+  become: yes
+  become_user: letsencrypt
+  register: ssl_csr
+  tags:
+    - configuration
+    - ssl
+
+- name: Generate self-signed SSL certificate
+  openssl_certificate:
+    csr_path: /etc/letsencrypt/scummvm.org.csr
+    path: /etc/letsencrypt/scummvm.org.pem
+    privatekey_path: /etc/letsencrypt/scummvm.org.key
+    provider: selfsigned
+    state: present
+  become: yes
+  become_user: letsencrypt
+  when: ssl_csr|changed and ssl_selfsigned is not undefined and ssl_selfsigned
+  tags:
+    - configuration
+    - ssl
+
+- name: Request updated LE certificate
+  command: /etc/letsencrypt/renew_cert.sh scummvm.org
+  become: yes
+  become_user: letsencrypt
+  when: ssl_csr|changed and (ssl_selfsigned is undefined or not ssl_selfsigned)
+  tags:
+    - configuration
+    - ssl

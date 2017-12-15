@@ -9,13 +9,8 @@
 	ErrorLog ${APACHE_LOG_DIR}/buildbot_error.log
 	CustomLog ${APACHE_LOG_DIR}/buildbot_access.log combined
 
-	SSLEngine on
-	SSLCertificateFile /etc/letsencrypt/live/scummvm.org/fullchain.pem
-	SSLCertificateKeyFile /etc/letsencrypt/live/scummvm.org/privkey.pem
-	SSLProtocol TLSv1 TLSv1.1 TLSv1.2
-	SSLCipherSuite HIGH:!ADH:!aNULL:!MD5:!3DES
+	Include scummvm-ssl.conf
 
-	Header always set Strict-Transport-Security "max-age=3600"
 	AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/xml application/javascript application/x-javascript text/javascript application/json text/x-json
 
 	<Directory /var/www/html/.well-known/acme-challenge/>

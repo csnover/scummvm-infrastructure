@@ -1,0 +1,70 @@
+- name: Install {{ item }} Apache configuration
+  template:
+    src: "{{ item }}.conf.j2"
+    dest: /etc/apache2/sites-available/{{ item }}.conf
+    backup: yes
+  register: new_apache_config
+  notify:
+    - reload apache2
+  tags:
+    - ancient_web
+    - apache2
+    - configuration
+
+- name: Activate {{ item }} Apache configuration
+  file:
+    src: /etc/apache2/sites-available/{{ item }}.conf
+    dest: /etc/apache2/sites-enabled/{{ item }}.conf
+    state: link
+  register: new_apache_link
+  notify:
+    - reload apache2
+  tags:
+    - ancient_web
+    - apache2
+    - configuration
+
+- name: Test new {{ item }} Apache configuration
+  when: new_apache_config|changed or new_apache_link|changed
+  command: apache2ctl configtest
+  register: apache_configtest_result
+  ignore_errors: yes
+  tags:
+    - ancient_web
+    - apache2
+    - configuration
+
+- name: Deactivate failed {{ item }} Apache configuration
+  file:
+    dest: /etc/apache2/sites-enabled/{{ item }}.conf
+    state: absent
+  notify:
+    - reload apache2
+  when: apache_configtest_result|failed and new_apache_config.backup_file is undefined
+  tags:
+    - ancient_web
+    - apache2
+    - configuration
+
+- name: Roll back {{ item }} Apache configuration
+  copy:
+    src: "{{ new_apache_config.backup_file }}"
+    dest: /etc/apache2/sites-available/buildbot.scummvm.org.conf
+    remote_src: yes
+  notify:
+    - reload apache2
+  when: apache_configtest_result|failed and new_apache_config.backup_file is defined
+  tags:
+    - ancient_web
+    - apache2
+    - configuration
+
+- name: Remove {{ item }} Apache configuration backup
+  file:
+    dest: "{{ new_apache_config.backup_file }}"
+    state: absent
+  when: new_apache_config.backup_file is defined
+  tags:
+    - ancient_web
+    - apache2
+    - configuration

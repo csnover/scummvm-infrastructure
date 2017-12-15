@@ -26,7 +26,13 @@ all:
         internal_buildbot_port: 8010
         sshd_port: 7022
         ssl_domains:
+          - scummvm.org
           - buildbot.scummvm.org
+          - bugs.scummvm.org
+          - forum.scummvm.org
+          - www.scummvm.org
+        ssl_services:
+          - apache2
         workers:
           - android
           - debian-x86_64

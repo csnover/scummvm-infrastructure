@@ -11,5 +11,6 @@
 
 - hosts: vm2
   roles:
+    - ssl
     - ancient_web
     - buildbot_master

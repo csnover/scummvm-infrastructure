@@ -1,0 +1,3 @@
+{% for service in ssl_services %}
+letsencrypt ALL=NOPASSWD: /bin/systemctl reload {{ service }}
+{% endfor %}

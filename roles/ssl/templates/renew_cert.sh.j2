@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -e
+
+if [ "$1" == "" ]; then
+	echo "Usage: $0 <domain>"
+	exit 1
+fi
+
+cd /etc/letsencrypt
+./acme_tiny.py --quiet \
+	--account-key ./account.key \
+	--csr ./$1.csr \
+	--acme-dir /var/www/html/.well-known/acme-challenge/ > $1.crt-new
+wget --quiet -N -O intermediate.pem https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem
+mv $1.crt-new $1.crt
+cat $1.crt intermediate.pem > $1.pem
+{% for service in ssl_services %}
+sudo systemctl reload {{ service }}
+{% endfor %}

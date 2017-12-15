@@ -16,6 +16,8 @@ all:
         ssl_domains:
           - buildbot.scummvm.org
         ssl_selfsigned: yes
+        ssl_services:
+          - apache2
         workers:
           - debian-x86_64
   vars:

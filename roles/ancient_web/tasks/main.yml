@@ -37,15 +37,16 @@
     - apache2
     - configuration
 
-- import_tasks: ssl.yml
-
-- name: Install Buildbot Apache configuration
-  template:
-    src: buildbot.scummvm.org.conf.j2
-    dest: /etc/apache2/sites-enabled/buildbot.scummvm.org.conf
-  notify:
-    - reload apache2
+- name: Install Apache SSL include
+  copy:
+    src: scummvm-ssl.conf
+    dest: /etc/apache2/scummvm-ssl.conf
   tags:
     - ancient_web
     - apache2
     - configuration
+    - ssl
+
+- include_tasks: config.yml
+  with_items:
+    - buildbot.scummvm.org
