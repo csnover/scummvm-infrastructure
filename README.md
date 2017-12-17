@@ -6,16 +6,13 @@ This infrastructure uses [Ansible](https://www.ansible.com/) ([docs](http://docs
 
 * Python 2.7+/3.5+
 * A copy of Ansible 2.4+ (`pip install ansible`)
-* A VM running Debian, for local testing changes to deployments
+* Vagrant 2+ and VirtualBox 5.1+, for local testing changes to deployments
 
 ## Testing changes locally
 
-1. Create a VM running Debian 8 (vm2) or 9 (vm1). **To prevent accidental
-   production deployment, do *not* use the same password for this account that
-   you use in production.**
-2. Install your SSH key into the default account in the VM
-3. Update `staging.yml` with the correct hosts for your dev environment
-4. Run `ansible-playbook -i staging.yml site.yml`
+1. Run `vagrant up` to create a control virtual machine (ansible) and two deployment targets (vm1 and vm2)
+2. Run `vagrant ssh ansible` to connect to the control virtual machine
+3. Run `cd /vagrant && ansible-playbook -b --ask-vault-pass -i staging.yml site.yml`
 
 ## Provisioning a new server
 

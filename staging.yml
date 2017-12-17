@@ -24,3 +24,5 @@ all:
     users:
       - name: user
         groups: sudo
+      - name: vagrant
+        groups: sudo
