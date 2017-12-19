@@ -25,7 +25,7 @@
 #     files:
 #       - docker-compose.yml
 #     services:
-#       "{{ docker_services.stdout_lines | select('match', 'buildbot-') | list | difference(workers | map('regex_replace', '^', 'buildbot-') | list) }}"
+#       "{{ docker_services.stdout_lines | difference(['web', 'buildbot']) | difference(workers) }}"
 #     state: absent
 #   when: buildbot_exists.rc == 0
 #   tags:
@@ -34,9 +34,8 @@
 - name: Stop old Buildbot workers
   command: >
     docker-compose stop {{ docker_services.stdout_lines |
-                           select('match', 'buildbot-') |
-                           list |
-                           difference(workers | map('regex_replace', '^', 'buildbot-') | list) |
+                           difference(['web', 'buildbot']) |
+                           difference(workers) |
                            join(' ') }}
   args:
     chdir: /srv/buildbot
@@ -73,7 +72,7 @@
       - docker-compose.yml
       - docker-compose.worker-prod.yml
     services:
-      "{{ workers | map('regex_replace', '^', 'buildbot-') | list }}"
+      "{{ workers }}"
     state: present
   tags:
     - buildbot_worker

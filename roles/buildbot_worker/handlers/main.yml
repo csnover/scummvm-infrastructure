@@ -6,6 +6,6 @@
       - docker-compose.yml
       - docker-compose.worker-prod.yml
     services:
-      "{{ workers | map('regex_replace', '^', 'buildbot-') | list }}"
+      "{{ workers }}"
     state: present
     restarted: true

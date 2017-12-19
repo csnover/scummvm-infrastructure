@@ -1,7 +1,7 @@
 version: "3"
 
 {% macro worker(name) %}
-buildbot-{{ name }}:
+{{ name }}:
   restart: always
   environment:
     WORKER_NAME: {{ ansible_hostname }}
